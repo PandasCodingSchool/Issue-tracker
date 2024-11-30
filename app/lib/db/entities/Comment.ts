@@ -11,8 +11,8 @@ import { Issue } from "./Issue";
 
 @Entity("comments")
 export class Comment {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column("text")
   content!: string;

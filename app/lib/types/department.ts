@@ -3,7 +3,7 @@ import { IUser } from "./user";
 import { IIssue } from "./issue";
 
 export interface IDepartment {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   organization?: IOrganization;
@@ -16,7 +16,7 @@ export interface IDepartment {
 export interface IDepartmentCreate {
   name: string;
   description?: string;
-  organizationId: string;
+  organizationId: number;
 }
 
 export interface IDepartmentUpdate extends Partial<IDepartmentCreate> {}

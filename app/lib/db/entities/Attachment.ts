@@ -9,8 +9,8 @@ import { Issue } from "./Issue";
 
 @Entity("attachments")
 export class Attachment {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column()
   fileName!: string;

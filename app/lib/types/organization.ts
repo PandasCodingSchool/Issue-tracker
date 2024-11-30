@@ -2,7 +2,7 @@ import { IDepartment } from "./department";
 import { IUser } from "./user";
 
 export interface IOrganization {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   departments?: IDepartment[];

@@ -5,7 +5,7 @@ import { IIssue } from "./issue";
 import { IComment } from "./comment";
 
 export interface IUser {
-  id: string;
+  id: number;
   firstName: string;
   lastName: string;
   email: string;
@@ -25,8 +25,8 @@ export interface IUserCreate {
   email: string;
   password: string;
   role?: UserRole;
-  organizationId?: string;
-  departmentId?: string;
+  organizationId?: number;
+  departmentId?: number;
 }
 
 export interface IUserUpdate extends Partial<IUserCreate> {}

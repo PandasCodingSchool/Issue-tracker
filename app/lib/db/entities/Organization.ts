@@ -8,12 +8,12 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { Department } from "./Department";
-import { IOrganization } from "@/lib/types";
+import type { IOrganization, IUser, IDepartment } from "@/lib/types";
 
 @Entity("organizations")
 export class Organization implements IOrganization {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column()
   name!: string;
@@ -22,10 +22,10 @@ export class Organization implements IOrganization {
   description!: string;
 
   @OneToMany(() => Department, (department) => department.organization)
-  departments!: Department[];
+  departments!: IDepartment[];
 
   @OneToMany(() => User, (user) => user.organization)
-  users!: User[];
+  users!: IUser[];
 
   @CreateDateColumn()
   createdAt!: Date;

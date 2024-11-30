@@ -15,8 +15,8 @@ import { Attachment } from "./Attachment";
 
 @Entity("issues")
 export class Issue {
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column()
   title!: string;

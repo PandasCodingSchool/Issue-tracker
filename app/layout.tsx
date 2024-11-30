@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import dbPromise from "@/lib/db/init";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,11 +19,14 @@ export const metadata: Metadata = {
   description: "This is an issue tracker app",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Ensure database is initialized
+  await dbPromise;
+
   return (
     <html lang="en">
       <body

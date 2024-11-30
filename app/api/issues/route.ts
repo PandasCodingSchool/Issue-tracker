@@ -1,39 +1,23 @@
 import { NextResponse } from "next/server";
-import { AppDataSource } from "@/lib/db";
-import { Issue } from "@/lib/db/entities/Issue";
-import { IIssue, IApiResponse, IPaginatedResponse } from "@/lib/types";
+import dbPromise from "@/lib/db/init";
+import { getRepositories } from "@/lib/db";
 
-export async function GET(
-  request: Request
-): Promise<NextResponse<IApiResponse<IPaginatedResponse<IIssue>>>> {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
+    // Ensure database is initialized
+    await dbPromise;
 
-    const issueRepository = AppDataSource.getRepository(Issue);
-    const [issues, total] = await issueRepository.findAndCount({
+    const { issues } = getRepositories();
+
+    const allIssues = await issues.find({
       relations: ["assignee", "department"],
-      skip: (page - 1) * limit,
-      take: limit,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        data: issues,
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
+    return NextResponse.json(allIssues);
   } catch (error) {
+    console.error("Error fetching issues:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Internal Server Error",
-      },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
