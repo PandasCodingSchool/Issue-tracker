@@ -1,6 +1,7 @@
-export { User } from "./User";
-export { Organization } from "./Organization";
-export { Department } from "./Department";
-export { Issue } from "./Issue";
-export { Comment } from "./Comment";
-export { Attachment } from "./Attachment";
+export * from "./User";
+export * from "./Organization";
+export * from "./Department";
+export * from "./Issue";
+export * from "./Comment";
+export * from "./Attachment";
+export * from "./BaseEntity";

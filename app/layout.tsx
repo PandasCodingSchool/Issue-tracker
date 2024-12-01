@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import dbPromise from "@/lib/db/init";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,8 +23,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Ensure database is initialized
-  await dbPromise;
 
   return (
     <html lang="en">

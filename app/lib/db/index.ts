@@ -1,13 +1,11 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import {
-  User,
-  Organization,
-  Department,
-  Issue,
-  Comment,
-  Attachment,
-} from "./entities";
+import { User } from "./entities/User";
+import { Organization } from "./entities/Organization";
+import { Department } from "./entities/Department";
+import { Issue } from "./entities/Issue";
+import { Comment } from "./entities/Comment";
+import { Attachment } from "./entities/Attachment";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -26,8 +24,8 @@ export const AppDataSource =
     synchronize: process.env.NODE_ENV !== "production",
     logging: process.env.NODE_ENV !== "production",
     entities: [User, Organization, Department, Issue, Comment, Attachment],
-    migrations: ["app/lib/db/migrations/**/*.ts"],
-    subscribers: ["app/lib/db/subscribers/**/*.ts"],
+    migrations: [],
+    subscribers: [],
   });
 
 if (process.env.NODE_ENV !== "production") {

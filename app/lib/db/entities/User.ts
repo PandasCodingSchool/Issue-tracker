@@ -1,23 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
 import { UserRole } from "@/lib/constants/enums";
-import { Organization } from "./Organization";
-import { Department } from "./Department";
-import { Issue } from "./Issue";
-import { Comment } from "./Comment";
+import { BaseEntity } from "./BaseEntity";
 
 @Entity("users")
-export class User {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class User extends BaseEntity {
   @Column()
   firstName!: string;
 
@@ -37,24 +23,18 @@ export class User {
   })
   role!: UserRole;
 
-  @ManyToOne(() => Organization, (organization) => organization.users)
-  organization!: Organization;
+  @ManyToOne("Organization", "users", { lazy: true })
+  organization!: Promise<any>;
 
-  @ManyToOne(() => Department, (department) => department.users)
-  department!: Department;
+  @ManyToOne("Department", "users", { lazy: true })
+  department!: Promise<any>;
 
-  @OneToMany(() => Issue, (issue) => issue.assignee)
-  assignedIssues!: Issue[];
+  @OneToMany("Issue", "assignee", { lazy: true })
+  assignedIssues!: Promise<any[]>;
 
-  @OneToMany(() => Issue, (issue) => issue.reporter)
-  reportedIssues!: Issue[];
+  @OneToMany("Issue", "reporter", { lazy: true })
+  reportedIssues!: Promise<any[]>;
 
-  @OneToMany(() => Comment, (comment) => comment.user)
-  comments!: Comment[];
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @OneToMany("Comment", "user", { lazy: true })
+  comments!: Promise<any[]>;
 }

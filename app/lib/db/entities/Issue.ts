@@ -1,23 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
 import { IssueStatus, IssuePriority, IssueType } from "@/lib/constants/enums";
-import { User } from "./User";
-import { Department } from "./Department";
-import { Comment } from "./Comment";
-import { Attachment } from "./Attachment";
+import { BaseEntity } from "./BaseEntity";
 
 @Entity("issues")
-export class Issue {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Issue extends BaseEntity {
   @Column()
   title!: string;
 
@@ -45,27 +31,21 @@ export class Issue {
   })
   type!: IssueType;
 
-  @ManyToOne(() => User, (user) => user.assignedIssues)
-  assignee!: User;
+  @ManyToOne("User", "assignedIssues", { lazy: true })
+  assignee!: Promise<any>;
 
-  @ManyToOne(() => User, (user) => user.reportedIssues)
-  reporter!: User;
+  @ManyToOne("User", "reportedIssues", { lazy: true })
+  reporter!: Promise<any>;
 
-  @ManyToOne(() => Department, (department) => department.issues)
-  department!: Department;
+  @ManyToOne("Department", "issues", { lazy: true })
+  department!: Promise<any>;
 
-  @OneToMany(() => Comment, (comment) => comment.issue)
-  comments!: Comment[];
+  @OneToMany("Comment", "issue", { lazy: true })
+  comments!: Promise<any[]>;
 
-  @OneToMany(() => Attachment, (attachment) => attachment.issue)
-  attachments!: Attachment[];
+  @OneToMany("Attachment", "issue", { lazy: true })
+  attachments!: Promise<any[]>;
 
   @Column({ nullable: true })
   dueDate!: Date;
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
 }

@@ -1,39 +1,20 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm";
-import { Organization } from "./Organization";
-import { User } from "./User";
-import { Issue } from "./Issue";
+import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
 
 @Entity("departments")
-export class Department {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Department extends BaseEntity {
   @Column()
   name!: string;
 
   @Column({ nullable: true })
   description!: string;
 
-  @ManyToOne(() => Organization, (organization) => organization.departments)
-  organization!: Organization;
+  @ManyToOne("Organization", "departments", { lazy: true })
+  organization!: Promise<any>;
 
-  @OneToMany(() => User, (user) => user.department)
-  users!: User[];
+  @OneToMany("User", "department", { lazy: true })
+  users!: Promise<any[]>;
 
-  @OneToMany(() => Issue, (issue) => issue.department)
-  issues!: Issue[];
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @OneToMany("Issue", "department", { lazy: true })
+  issues!: Promise<any[]>;
 }

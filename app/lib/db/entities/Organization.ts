@@ -1,35 +1,29 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm";
-import { User } from "./User";
-import { Department } from "./Department";
-import type { IOrganization, IUser, IDepartment } from "@/lib/types";
+import { Entity, Column, OneToMany } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
+import type { IDepartment, IOrganization, IUser } from "@/lib/types";
 
 @Entity("organizations")
-export class Organization implements IOrganization {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Organization
+  extends BaseEntity
+  implements Omit<IOrganization, "departments" | "users">
+{
   @Column()
   name!: string;
 
   @Column({ nullable: true })
   description!: string;
 
-  @OneToMany(() => Department, (department) => department.organization)
-  departments!: IDepartment[];
+  @OneToMany("Department", "organization", { lazy: true })
+  departments!: Promise<IDepartment[]>;
 
-  @OneToMany(() => User, (user) => user.organization)
-  users!: IUser[];
+  @OneToMany("User", "organization", { lazy: true })
+  users!: Promise<IUser[]>;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  async getDepartments(): Promise<IDepartment[]> {
+    return this.departments;
+  }
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  async getUsers(): Promise<IUser[]> {
+    return this.users;
+  }
 }

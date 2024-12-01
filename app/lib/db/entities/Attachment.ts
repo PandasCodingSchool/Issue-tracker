@@ -1,17 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-} from "typeorm";
-import { Issue } from "./Issue";
+import { Entity, Column, ManyToOne } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
 
 @Entity("attachments")
-export class Attachment {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Attachment extends BaseEntity {
   @Column()
   fileName!: string;
 
@@ -24,9 +15,6 @@ export class Attachment {
   @Column()
   fileSize!: number;
 
-  @ManyToOne(() => Issue, (issue) => issue.attachments)
-  issue!: Issue;
-
-  @CreateDateColumn()
-  createdAt!: Date;
+  @ManyToOne("Issue", "attachments", { lazy: true })
+  issue!: Promise<any>;
 }

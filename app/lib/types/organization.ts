@@ -1,12 +1,12 @@
-import { IDepartment } from "./department";
-import { IUser } from "./user";
+import type { IDepartment } from "./department";
+import type { IUser } from "./user";
 
 export interface IOrganization {
   id: number;
   name: string;
   description?: string;
-  departments?: IDepartment[];
-  users?: IUser[];
+  getDepartments(): Promise<IDepartment[]>;
+  getUsers(): Promise<IUser[]>;
   createdAt: Date;
   updatedAt: Date;
 }

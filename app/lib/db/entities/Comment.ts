@@ -1,31 +1,14 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from "typeorm";
-import { User } from "./User";
-import { Issue } from "./Issue";
+import { Entity, Column, ManyToOne } from "typeorm";
+import { BaseEntity } from "./BaseEntity";
 
 @Entity("comments")
-export class Comment {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
+export class Comment extends BaseEntity {
   @Column("text")
   content!: string;
 
-  @ManyToOne(() => User, (user) => user.comments)
-  user!: User;
+  @ManyToOne("User", "comments", { lazy: true })
+  user!: Promise<any>;
 
-  @ManyToOne(() => Issue, (issue) => issue.comments)
-  issue!: Issue;
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @ManyToOne("Issue", "comments", { lazy: true })
+  issue!: Promise<any>;
 }
