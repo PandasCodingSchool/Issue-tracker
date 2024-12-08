@@ -6,6 +6,7 @@ import { Department } from "./entities/Department";
 import { Issue } from "./entities/Issue";
 import { Comment } from "./entities/Comment";
 import { Attachment } from "./entities/Attachment";
+import { RequestAccess } from "./entities/RequestAccess";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -23,7 +24,15 @@ export const AppDataSource =
     database: process.env.POSTGRES_DB || "issue_tracker",
     synchronize: process.env.NODE_ENV !== "production",
     logging: process.env.NODE_ENV !== "production",
-    entities: [User, Organization, Department, Issue, Comment, Attachment],
+    entities: [
+      User,
+      Organization,
+      Department,
+      Issue,
+      Comment,
+      Attachment,
+      RequestAccess,
+    ],
     migrations: [],
     subscribers: [],
   });
@@ -34,10 +43,11 @@ if (process.env.NODE_ENV !== "production") {
 
 export const initializeDatabase = async () => {
   try {
-    console.log("Initializing database...");
     if (!AppDataSource.isInitialized) {
+      console.log("Initializing database");
       await AppDataSource.initialize();
     }
+    console.log("Database already initialized");
     return AppDataSource;
   } catch (error) {
     console.error("Error connecting to database:", error);
@@ -58,5 +68,6 @@ export const getRepositories = () => {
     issues: AppDataSource.getRepository(Issue),
     comments: AppDataSource.getRepository(Comment),
     attachments: AppDataSource.getRepository(Attachment),
+    requestAccess: AppDataSource.getRepository(RequestAccess),
   };
 };

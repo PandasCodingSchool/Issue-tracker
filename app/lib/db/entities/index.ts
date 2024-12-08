@@ -5,3 +5,4 @@ export * from "./Issue";
 export * from "./Comment";
 export * from "./Attachment";
 export * from "./BaseEntity";
+export * from "./RequestAccess";
