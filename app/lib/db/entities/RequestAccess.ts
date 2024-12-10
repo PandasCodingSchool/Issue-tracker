@@ -2,7 +2,7 @@ import { Entity, Column } from "typeorm";
 import { BaseEntity } from "./BaseEntity";
 import type { TeamSize, RequestStatus } from "@/lib/types/request";
 
-@Entity("request_access")
+@Entity({ name: "request_access" })
 export class RequestAccess extends BaseEntity {
   @Column()
   companyName!: string;

@@ -3,6 +3,7 @@ import { initializeDatabase, getRepositories } from "@/lib/db";
 import { ApiResponse } from "@/lib/types/api";
 import { IRequestAccess } from "@/lib/types/request";
 import { z } from "zod";
+import { EntityMetadataNotFoundError } from "typeorm";
 
 // Request validation schema
 const requestSchema = z.object({
@@ -19,8 +20,14 @@ const requestSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    await initializeDatabase();
+    const dataSource = await initializeDatabase();
+    console.log("Database connection status:", {
+      isInitialized: dataSource.isInitialized,
+      isConnected: dataSource.isConnected,
+    });
+
     const { requestAccess } = getRepositories();
+    console.log("RequestAccess repository:", requestAccess.metadata.tableName);
 
     // Parse and validate request body
     const body = await request.json();
@@ -39,21 +46,34 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new request
-    const newRequest = requestAccess.create(validatedData);
-    await requestAccess.save(newRequest);
+    const newRequest = requestAccess.create({
+      ...validatedData,
+      status: "PENDING",
+    });
 
-    // Send email notification (implement this later)
-    // await sendRequestNotification(newRequest);
+    const savedRequest = await requestAccess.save(newRequest);
+    console.log("Request saved successfully:", savedRequest.id);
 
     return NextResponse.json<ApiResponse<IRequestAccess>>(
       {
-        data: newRequest,
+        data: savedRequest,
         message: "Request submitted successfully",
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("Error processing request:", error);
+
+    if (error instanceof EntityMetadataNotFoundError) {
+      return NextResponse.json<ApiResponse<never>>(
+        {
+          error: "Database Configuration Error",
+          message:
+            "Entity not found. Please ensure the database is properly configured.",
+        },
+        { status: 500 }
+      );
+    }
 
     if (error instanceof z.ZodError) {
       return NextResponse.json<ApiResponse<never>>(
@@ -63,7 +83,11 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json<ApiResponse<never>>(
-      { error: "Internal Server Error" },
+      {
+        error: "Internal Server Error",
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      },
       { status: 500 }
     );
   }
@@ -71,20 +95,47 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    await initializeDatabase();
+    const dataSource = await initializeDatabase();
+    console.log("Database connection status:", {
+      isInitialized: dataSource.isInitialized,
+      isConnected: dataSource.isConnected,
+    });
+
     const { requestAccess } = getRepositories();
-    console.log(requestAccess)
+    console.log(
+      "Fetching requests from table:",
+      requestAccess.metadata.tableName
+    );
+
     const requests = await requestAccess.find({
       order: { createdAt: "DESC" },
     });
+
+    console.log(`Found ${requests.length} requests`);
 
     return NextResponse.json<ApiResponse<IRequestAccess[]>>({
       data: requests,
     });
   } catch (error) {
     console.error("Error fetching requests:", error);
+
+    if (error instanceof EntityMetadataNotFoundError) {
+      return NextResponse.json<ApiResponse<never>>(
+        {
+          error: "Database Configuration Error",
+          message:
+            "Entity not found. Please ensure the database is properly configured.",
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json<ApiResponse<never>>(
-      { error: "Internal Server Error" },
+      {
+        error: "Internal Server Error",
+        message:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      },
       { status: 500 }
     );
   }

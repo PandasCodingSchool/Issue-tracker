@@ -7,25 +7,18 @@ export async function GET(
 ) {
   try {
     await initializeDatabase();
-    const { issues } = getRepositories();
+    const { users } = getRepositories();
 
-    const issue = await issues.findOne({
+    const user = await users.findOne({
       where: { id: parseInt(params.id) },
-      relations: [
-        "assignee",
-        "reporter",
-        "department",
-        "comments",
-        "comments.user",
-        "attachments",
-      ],
+      relations: ["department", "assignedIssues"],
     });
 
-    if (!issue) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
-          error: "Issue not found",
+          error: "User not found",
         },
         { status: 404 }
       );
@@ -33,14 +26,14 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: issue,
+      data: user,
     });
   } catch (error) {
-    console.error("Error fetching issue:", error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to fetch issue",
+        error: "Failed to fetch user",
       },
       { status: 500 }
     );
@@ -53,57 +46,61 @@ export async function PUT(
 ) {
   try {
     await initializeDatabase();
-    const { issues } = getRepositories();
+    const { users, departments } = getRepositories();
     const data = await request.json();
 
-    const issue = await issues.findOne({
+    const user = await users.findOne({
       where: { id: parseInt(params.id) },
-      relations: ["assignee", "reporter", "department"],
+      relations: ["department"],
     });
 
-    if (!issue) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
-          error: "Issue not found",
+          error: "User not found",
         },
         { status: 404 }
       );
     }
 
-    issues.merge(issue, {
+    // If department is being updated, verify it exists
+    if (data.departmentId) {
+      const department = await departments.findOne({
+        where: { id: data.departmentId },
+      });
+
+      if (!department) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Department not found",
+          },
+          { status: 404 }
+        );
+      }
+    }
+
+    // Update user
+    users.merge(user, {
       ...data,
-      assignee: data.assigneeId ? { id: data.assigneeId } : issue.assignee,
       department: data.departmentId
         ? { id: data.departmentId }
-        : issue.department,
+        : user.department,
     });
 
-    await issues.save(issue);
-
-    // Fetch updated issue with all relations
-    const updatedIssue = await issues.findOne({
-      where: { id: parseInt(params.id) },
-      relations: [
-        "assignee",
-        "reporter",
-        "department",
-        "comments",
-        "comments.user",
-        "attachments",
-      ],
-    });
+    await users.save(user);
 
     return NextResponse.json({
       success: true,
-      data: updatedIssue,
+      data: user,
     });
   } catch (error) {
-    console.error("Error updating issue:", error);
+    console.error("Error updating user:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to update issue",
+        error: "Failed to update user",
       },
       { status: 500 }
     );
@@ -116,34 +113,36 @@ export async function DELETE(
 ) {
   try {
     await initializeDatabase();
-    const { issues } = getRepositories();
+    const { users } = getRepositories();
 
-    const issue = await issues.findOne({
+    const user = await users.findOne({
       where: { id: parseInt(params.id) },
     });
 
-    if (!issue) {
+    if (!user) {
       return NextResponse.json(
         {
           success: false,
-          error: "Issue not found",
+          error: "User not found",
         },
         { status: 404 }
       );
     }
 
-    await issues.remove(issue);
+    // Instead of deleting, set status to inactive
+    user.status = "inactive";
+    await users.save(user);
 
     return NextResponse.json({
       success: true,
       data: { id: parseInt(params.id) },
     });
   } catch (error) {
-    console.error("Error deleting issue:", error);
+    console.error("Error deactivating user:", error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to delete issue",
+        error: "Failed to deactivate user",
       },
       { status: 500 }
     );

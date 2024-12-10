@@ -6,3 +6,4 @@ export * from "./Comment";
 export * from "./Attachment";
 export * from "./BaseEntity";
 export * from "./RequestAccess";
+export * from "./Project";

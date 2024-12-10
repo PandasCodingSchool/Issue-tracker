@@ -23,7 +23,7 @@ export default function About() {
               Our Mission
             </p>
             <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-              We&apos;re on a mission to make issue tracking simple, efficient, and
+              We&apos;re on a mission to make debugging and issue tracking simple, efficient, and
               accessible to teams of all sizes.
             </p>
           </motion.div>
@@ -39,8 +39,8 @@ export default function About() {
                 <Card className="mt-4">
                   <CardBody>
                     <p className="text-lg text-gray-500">
-                      Founded in 2023, IssueTracker was born from the frustration of
-                      dealing with complex and unintuitive issue tracking systems. We
+                      Founded in 2023, DebugDeck was born from the frustration of
+                      dealing with complex and unintuitive debugging and issue tracking systems. We
                       believed there had to be a better way to manage projects and
                       track issues.
                     </p>

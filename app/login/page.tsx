@@ -19,6 +19,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { FiMail, FiLock, FiAlertCircle } from "react-icons/fi";
+import { UserRole } from "@/lib/constants/enums";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -61,9 +62,11 @@ export default function Login() {
       localStorage.setItem("auth_token", result.data.token);
 
       // Redirect based on user role
-      if (result.data.user.role === "ADMIN") {
+      if (result.data.user.role === UserRole.SUPER_ADMIN) {
         router.push("/admin");
-      } else {
+      }else if(result.date.user.role === UserRole.ADMIN){
+        router.push('/org-admin')
+      }else {
         router.push("/dashboard");
       }
     } catch (error) {

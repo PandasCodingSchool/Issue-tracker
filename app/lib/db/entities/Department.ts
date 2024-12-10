@@ -1,20 +1,23 @@
-import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
+import { Entity, Column, OneToMany } from "typeorm";
 import { BaseEntity } from "./BaseEntity";
+import { User } from "./User";
+import { Issue } from "./Issue";
+import { Project } from "./Project";
 
-@Entity("departments")
+@Entity()
 export class Department extends BaseEntity {
   @Column()
-  name!: string;
+  name: string;
 
-  @Column({ nullable: true })
-  description!: string;
+  @Column({ type: "text", nullable: true })
+  description: string;
 
-  @ManyToOne("Organization", "departments", { lazy: true })
-  organization!: Promise<any>;
+  @OneToMany(() => User, (user) => user.department)
+  users: User[];
 
-  @OneToMany("User", "department", { lazy: true })
-  users!: Promise<any[]>;
+  @OneToMany(() => Issue, (issue) => issue.department)
+  issues: Issue[];
 
-  @OneToMany("Issue", "department", { lazy: true })
-  issues!: Promise<any[]>;
+  @OneToMany(() => Project, (project) => project.department)
+  projects: Project[];
 }

@@ -1,51 +1,51 @@
-import { Entity, Column, ManyToOne, OneToMany } from "typeorm";
-import { IssueStatus, IssuePriority, IssueType } from "@/lib/constants/enums";
+import { Entity, Column, ManyToOne } from "typeorm";
 import { BaseEntity } from "./BaseEntity";
+import { User } from "./User";
+import { Department } from "./Department";
+import { Project } from "./Project";
+import { IssueStatus, IssuePriority, IssueType } from "@/lib/constants/enums";
 
-@Entity("issues")
+@Entity()
 export class Issue extends BaseEntity {
   @Column()
-  title!: string;
+  title: string;
 
-  @Column("text")
-  description!: string;
+  @Column({ type: "text" })
+  description: string;
 
   @Column({
     type: "enum",
     enum: IssueStatus,
     default: IssueStatus.OPEN,
   })
-  status!: IssueStatus;
+  status: IssueStatus;
 
   @Column({
     type: "enum",
     enum: IssuePriority,
     default: IssuePriority.MEDIUM,
   })
-  priority!: IssuePriority;
+  priority: IssuePriority;
 
   @Column({
     type: "enum",
     enum: IssueType,
     default: IssueType.TASK,
   })
-  type!: IssueType;
+  type: IssueType;
 
-  @ManyToOne("User", "assignedIssues", { lazy: true })
-  assignee!: Promise<any>;
+  @Column({ type: "date", nullable: true })
+  dueDate: Date;
 
-  @ManyToOne("User", "reportedIssues", { lazy: true })
-  reporter!: Promise<any>;
+  @ManyToOne(() => User, (user) => user.assignedIssues)
+  assignee: User;
 
-  @ManyToOne("Department", "issues", { lazy: true })
-  department!: Promise<any>;
+  @ManyToOne(() => User, (user) => user.reportedIssues)
+  reporter: User;
 
-  @OneToMany("Comment", "issue", { lazy: true })
-  comments!: Promise<any[]>;
+  @ManyToOne(() => Department, (department) => department.issues)
+  department: Department;
 
-  @OneToMany("Attachment", "issue", { lazy: true })
-  attachments!: Promise<any[]>;
-
-  @Column({ nullable: true })
-  dueDate!: Date;
+  @ManyToOne(() => Project, (project) => project.issues)
+  project: Project;
 }

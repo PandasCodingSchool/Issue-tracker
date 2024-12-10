@@ -1,20 +1,13 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { User } from "./entities/User";
-import { Organization } from "./entities/Organization";
-import { Department } from "./entities/Department";
-import { Issue } from "./entities/Issue";
-import { Comment } from "./entities/Comment";
-import { Attachment } from "./entities/Attachment";
-import { RequestAccess } from "./entities/RequestAccess";
+import * as entities from "./entities";
 
 declare global {
   // eslint-disable-next-line no-var
   var dbConnection: DataSource | undefined;
 }
 
-export const AppDataSource =
-  global.dbConnection ||
+const createDataSource = () =>
   new DataSource({
     type: "postgres",
     host: process.env.POSTGRES_HOST || "localhost",
@@ -24,18 +17,12 @@ export const AppDataSource =
     database: process.env.POSTGRES_DB || "issue_tracker",
     synchronize: process.env.NODE_ENV !== "production",
     logging: process.env.NODE_ENV !== "production",
-    entities: [
-      User,
-      Organization,
-      Department,
-      Issue,
-      Comment,
-      Attachment,
-      RequestAccess,
-    ],
+    entities: Object.values(entities),
     migrations: [],
     subscribers: [],
   });
+
+export const AppDataSource = global.dbConnection || createDataSource();
 
 if (process.env.NODE_ENV !== "production") {
   global.dbConnection = AppDataSource;
@@ -44,13 +31,27 @@ if (process.env.NODE_ENV !== "production") {
 export const initializeDatabase = async () => {
   try {
     if (!AppDataSource.isInitialized) {
-      console.log("Initializing database");
+      console.log("Initializing database connection...");
       await AppDataSource.initialize();
+      console.log("Database connection initialized successfully");
+    } else if (!AppDataSource.isConnected) {
+      console.log("Reconnecting to database...");
+      await AppDataSource.connect();
+      console.log("Database reconnected successfully");
     }
-    console.log("Database already initialized");
     return AppDataSource;
   } catch (error) {
-    console.error("Error connecting to database:", error);
+    console.error("Error with database connection:", error);
+
+    // If there's a connection error, try to create a new connection
+    if (!global.dbConnection?.isConnected) {
+      console.log("Attempting to create new connection...");
+      global.dbConnection = createDataSource();
+      await global.dbConnection.initialize();
+      console.log("New connection established successfully");
+      return global.dbConnection;
+    }
+
     throw error;
   }
 };
@@ -62,12 +63,12 @@ export const getRepositories = () => {
   }
 
   return {
-    users: AppDataSource.getRepository(User),
-    organizations: AppDataSource.getRepository(Organization),
-    departments: AppDataSource.getRepository(Department),
-    issues: AppDataSource.getRepository(Issue),
-    comments: AppDataSource.getRepository(Comment),
-    attachments: AppDataSource.getRepository(Attachment),
-    requestAccess: AppDataSource.getRepository(RequestAccess),
+    users: AppDataSource.getRepository(entities.User),
+    organizations: AppDataSource.getRepository(entities.Organization),
+    departments: AppDataSource.getRepository(entities.Department),
+    issues: AppDataSource.getRepository(entities.Issue),
+    comments: AppDataSource.getRepository(entities.Comment),
+    attachments: AppDataSource.getRepository(entities.Attachment),
+    requestAccess: AppDataSource.getRepository(entities.RequestAccess),
   };
 };

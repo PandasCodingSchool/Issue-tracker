@@ -5,35 +5,34 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  NavbarMenuToggle,
   NavbarMenu,
   NavbarMenuItem,
-  NavbarMenuToggle,
   Button,
-  Link as NextUILink,
+  Link,
 } from "@nextui-org/react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+const menuItems = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Contact", href: "/contact" },
+];
+
 export default function Navbar() {
-  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
-  const menuItems = [
-    { name: "Home", href: "/" },
-    { name: "About Us", href: "/about" },
-    { name: "Pricing", href: "/pricing" },
-    { name: "Contact Us", href: "/contact" },
-  ];
-
-  const isActive = (path: string) => pathname === path;
+  const isActive = (href: string) => pathname === href;
 
   return (
     <NextUINavbar
       onMenuOpenChange={setIsMenuOpen}
-      shouldHideOnScroll
       maxWidth="xl"
       position="sticky"
+      className="shadow-sm"
     >
       <NavbarContent>
         <NavbarMenuToggle
@@ -41,23 +40,22 @@ export default function Navbar() {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <Link href="/" className="font-bold text-primary">
-            IssueTracker
+          <Link href="/" color="foreground">
+            <p className="font-bold text-inherit">Debug Deck</p>
           </Link>
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         {menuItems.map((item) => (
-          <NavbarItem key={item.href} isActive={isActive(item.href)}>
-            <NextUILink
-              as={Link}
+          <NavbarItem key={item.name} isActive={isActive(item.href)}>
+            <Link
               color={isActive(item.href) ? "primary" : "foreground"}
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
             >
               {item.name}
-            </NextUILink>
+            </Link>
           </NavbarItem>
         ))}
       </NavbarContent>
@@ -69,36 +67,53 @@ export default function Navbar() {
             color="primary"
             href="/request-access"
             variant="flat"
+            className="mr-2"
           >
             Request Access
+          </Button>
+          <Button
+            as={Link}
+            color="primary"
+            href="/login"
+            variant="solid"
+          >
+            Login
           </Button>
         </NavbarItem>
       </NavbarContent>
 
       <NavbarMenu>
         {menuItems.map((item) => (
-          <NavbarMenuItem key={item.href}>
-            <NextUILink
-              as={Link}
+          <NavbarMenuItem key={item.name}>
+            <Link
               color={isActive(item.href) ? "primary" : "foreground"}
               className="w-full"
               href={item.href}
               size="lg"
             >
               {item.name}
-            </NextUILink>
+            </Link>
           </NavbarMenuItem>
         ))}
         <NavbarMenuItem>
-          <Button
-            as={Link}
+          <Link
             color="primary"
-            href="/request-access"
-            variant="flat"
             className="w-full"
+            href="/request-access"
+            size="lg"
           >
             Request Access
-          </Button>
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link
+            color="primary"
+            className="w-full"
+            href="/login"
+            size="lg"
+          >
+            Login
+          </Link>
         </NavbarMenuItem>
       </NavbarMenu>
     </NextUINavbar>
